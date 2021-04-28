@@ -25,8 +25,9 @@ if __name__ == "__main__" :
 	parser.add_argument("--constrained", action="store_true", help="use the constrained model.")
 	
 	parser.add_argument('--method', choices=['nuts', 'hmc'], default = 'nuts', help="The mcmc method to use for training")
-	parser.add_argument('--samples', type=int, default = 1000, help="The mcmc method to use for training")
-	parser.add_argument('--numchains', type=int, default = 1, help="The mcmc method to use for training")
+	parser.add_argument('--samples', type=int, default = 1000, help="The number of samples each chain will generate")
+	parser.add_argument('--warmup', type=int, default = 100, help="The number of warmup steps in each chains")
+	parser.add_argument('--numchains', type=int, default = 1, help="The number of chains to run")
 	
 	parser.add_argument('-o', '--output', default='./mcmc_samples.pkl', help="The location where to store the samples")
 	
@@ -47,7 +48,7 @@ if __name__ == "__main__" :
 	else :
 		hmc_kernel = NUTS(model, adapt_step_size=True)
 		
-	chain = MCMC(hmc_kernel, num_samples=args.samples, num_chains = args.numchains, warmup_steps=100)
+	chain = MCMC(hmc_kernel, num_samples=args.samples, num_chains = args.numchains, warmup_steps=args.warmup)
 	chain.run(x,y,z)
 	samples = chain.get_samples()
 	sites = samples.keys()
