@@ -48,6 +48,9 @@ class VIModule(nn.Module) :
 		return t_loss
 
 class L2RegularizedLinear(VIModule, nn.Linear) :
+	"""
+	A MAP linear layer with gaussian prior.
+	"""
 	
 	def __init__(self, 
 			  in_features, 
@@ -104,6 +107,7 @@ class MeanFieldGaussianFeedForward(VIModule) :
 		self.noiseSourceWeights = Normal(torch.zeros(out_features, int(in_features/groups)), 
 								   torch.ones(out_features, int(in_features/groups)))
 		
+		#The prior and variational posterior contribution to the loss for the weight.
 		self.addLoss(lambda s : 0.5*s.getSampledWeights().pow(2).sum()/weightPriorSigma**2)
 		self.addLoss(lambda s : -self.out_features/2*np.log(2*np.pi) - 0.5*s.samples['wNoiseState'].pow(2).sum() - s.lweights_sigma.sum())
 		
@@ -113,6 +117,7 @@ class MeanFieldGaussianFeedForward(VIModule) :
 			
 			self.noiseSourceBias = Normal(torch.zeros(out_features), torch.ones(out_features))
 			
+			#The prior and variational posterior contribution to the loss for the bias (added if bias are present).
 			self.addLoss(lambda s : 0.5*s.getSampledBias().pow(2).sum()/biasPriorSigma**2)
 			self.addLoss(lambda s : -self.out_features/2*np.log(2*np.pi) - 0.5*s.samples['bNoiseState'].pow(2).sum() - self.lbias_sigma.sum())
 			
@@ -175,7 +180,7 @@ class VariationalInferenceModulePaperfold(VIModule) :
 
 class PointEstimateModulePaperfold(VIModule) :
 	"""
-		VariationalInferenceModulePaperfold represent the stochastic weight BNN presented for the
+		PointEstimateModulePaperfold represent the MAP point estimate weight BNN presented for the
 		paperfold case study, implemented to learn a point estimate.
 	"""
 	

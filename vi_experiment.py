@@ -19,18 +19,22 @@ from torch.optim import Adam
 
 import argparse as args
 
+import time
 
 if __name__ == "__main__" :
+	"""
+	Run the experiment for the VI model or the point estimate model.
+	"""
 	
 	parser = args.ArgumentParser(description='Train the paperfold BNN using variational inference')
 	
-	parser.add_argument("--constrained", action="store_true", help="use the constrained model.")
+	parser.add_argument("--constrained", action="store_true", help="use the constrained model (8 data points instead of 4).")
 	parser.add_argument("--pointestimate", action="store_true", help="use the point estimate model.")
 	
 	parser.add_argument('--samples', type=int, default = 1000, help="The number of sample to generate for each network")
 	parser.add_argument('--trainsteps', type=int, default = 100, help="The number of training steps")
 	parser.add_argument('--learningrate', type=float, default = 1e-3, help="The learning rate of the optimizer")
-	parser.add_argument('--numnetworks', type=int, default = 1, help="The number of networks to train in parallel")
+	parser.add_argument('--numnetworks', type=int, default = 1, help="The number of networks to train in parallel to perform ensembling")
 	
 	parser.add_argument('-o', '--output', default='./vi_samples.pkl', help="The location where to store the samples")
 	
@@ -47,6 +51,7 @@ if __name__ == "__main__" :
 	obs_sigma = 0.1
 	lossbase = lambda z, zhat: torch.sum(torch.square((z - zhat)/obs_sigma))
 	
+	startTime = time.time()
 	#train models
 	for i in np.arange(args.numnetworks) :
 	
@@ -59,13 +64,6 @@ if __name__ == "__main__" :
 		else :
 			model = paperfoldBnn(weight_sigma = 1., bias_sigma = 10.)
 			
-		#print(model)
-		#print(model.layer1branch1.weight)
-		#print(model.layer1branch1.bias)
-		#print(model.layer1branch2.weight)
-		#print(model.layer1branch2.bias)
-		#print(model.layer2.weight)
-		
 		optimizer = Adam(model.parameters(), lr=args.learningrate)
 		optimizer.zero_grad()
 		
@@ -86,10 +84,16 @@ if __name__ == "__main__" :
 		print("")
 			
 		modelList.append(model)
+	
+	
+	trainTime = time.time() - startTime
+	print("Training time: {}s".format(trainTime))
 		
 	#sample models
 	
 	samples = None
+	
+	startTime = time.time()
 	
 	for i in np.arange(args.numnetworks) :
 	
@@ -134,5 +138,8 @@ if __name__ == "__main__" :
 				samples = samples.append(s, ignore_index=True)
 			
 		print("")
+		
+	executionTime = time.time() - startTime
+	print("Time per sample: {}s".format(executionTime/(args.numnetworks*args.samples)))
 				
 	samples.to_pickle(args.output)

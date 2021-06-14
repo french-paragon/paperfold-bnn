@@ -11,6 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def getData(constrained : bool = False) :
+	"""
+	Generate the data as described in figure 19 of the paper.
+	"""
 	
 	x = np.array([np.sqrt(2), 0, -np.sqrt(2), 0], dtype=np.float32)
 	y = np.array([0, np.sqrt(2), 0, -np.sqrt(2)], dtype=np.float32)
@@ -24,6 +27,9 @@ def getData(constrained : bool = False) :
 	return x,y,z
 	
 def getZNoise(sigma : float = 0.1, constrained : bool = False) :
+	"""
+	Generate a noise sample to apply on top of the data.
+	"""
 	
 	n = 8 if constrained else 4
 	return np.random.default_rng().normal(0, sigma, n).astype(np.float32)
@@ -31,6 +37,9 @@ def getZNoise(sigma : float = 0.1, constrained : bool = False) :
 
 
 if __name__ == ("__main__") :
+	"""
+	If the file is called as a script just do a 3D scatter plot of the data.
+	"""
 	
 	x,y,z = getData(True)
 	

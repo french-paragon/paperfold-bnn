@@ -11,8 +11,11 @@ import torch.nn as nn
 
 class PointEstimateModulePaperfold(nn.Module) :
 	"""
-		VariationalInferenceModulePaperfold represent the stochastic weight BNN presented for the
-		paperfold case study, implemented to learn the posterior using variational inference.
+		PointEstimateModulePaperfold represent the point estimate weight BNN presented for the
+		paperfold case study. 
+		
+		This version is just the plain ord maximum likelyhood version implemented with torch primitives.
+		For our experiment we used the MAP version a a point estimate network, coded in the viModel module.
 	"""
 	
 	def __init__(self) :

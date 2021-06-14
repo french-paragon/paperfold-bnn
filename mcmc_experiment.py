@@ -18,7 +18,12 @@ from pyro.infer.mcmc import MCMC, HMC, NUTS
 
 import argparse as args
 
+import time
+
 if __name__ == "__main__" :
+	"""
+	Run the experiment for the MCMC model
+	"""
 	
 	parser = args.ArgumentParser(description='Train the paperfold BNN using an MCMC sampler')
 	
@@ -47,9 +52,17 @@ if __name__ == "__main__" :
 		hmc_kernel = HMC(model, step_size=0.0855, num_steps=4)
 	else :
 		hmc_kernel = NUTS(model, adapt_step_size=True)
-		
+	
 	chain = MCMC(hmc_kernel, num_samples=args.samples, num_chains = args.numchains, warmup_steps=args.warmup)
+		
+	startTime = time.time()
+	
 	chain.run(x,y,z)
+	
+	duration = time.time() - startTime
+	print("Total time: {}s".format(duration))
+	print("Time per sample: {}s".format(duration/((args.warmup+args.samples)*args.numchains)))
+	
 	samples = chain.get_samples()
 	sites = samples.keys()
 	
@@ -75,4 +88,4 @@ if __name__ == "__main__" :
 			names += ["{}.{}".format(site, i) for i in np.arange(1,s+1)]
 	
 	samples = pd.DataFrame(data = flatSamples, index=np.arange(args.samples*args.numchains), columns=names)
-	samples.to_pickle(args.output)
+	samples.to_pickle(args.output) #save samples

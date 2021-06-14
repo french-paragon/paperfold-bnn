@@ -7,6 +7,9 @@ Created on Tue Apr 20 12:07:19 2021
 """
 
 def model(coeffs, x, y) :
+	"""
+	Implementation of the paperfold model in numpy.
+	"""
 	
 	branch1 = coeffs[...,0]*x + coeffs[...,1]*y + coeffs[...,2]
 	branch2 = coeffs[...,3]*x + coeffs[...,4]*y + coeffs[...,5]
